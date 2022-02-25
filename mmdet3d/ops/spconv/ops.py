@@ -16,6 +16,7 @@ import torch
 
 from . import sparse_conv_ext
 
+#torch.cuda.set_device(0)
 
 def get_conv_output_size(input_size, kernel_size, stride, padding, dilation):
     ndim = len(input_size)
