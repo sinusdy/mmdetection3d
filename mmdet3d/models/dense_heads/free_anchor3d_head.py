@@ -120,7 +120,7 @@ class FreeAnchor3DHead(Anchor3DHead):
                 # object_box_prob: P{a_{j} -> b_{i}}, shape: [i, j]
                 t1 = self.bbox_thr
                 t2 = object_box_iou.max(
-                    dim=1, keepdim=True).values.clamp(min=t1 + 1e-12)
+                    dim=1, keepdim=True).values.clamp(min=t1 + 1e-6)
                 object_box_prob = ((object_box_iou - t1) / (t2 - t1)).clamp(
                     min=0, max=1)
 
@@ -195,6 +195,7 @@ class FreeAnchor3DHead(Anchor3DHead):
                     matched_anchors,
                     matched_object_targets,
                     self.dir_offset,
+                    self.dir_limit_offset,
                     one_hot=False)
                 loss_dir = self.loss_dir(
                     dir_cls_preds_[matched].transpose(-2, -1),

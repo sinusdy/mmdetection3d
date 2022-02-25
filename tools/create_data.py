@@ -62,7 +62,8 @@ def nuscenes_data_prep(root_path,
         version (str): Dataset version.
         dataset_name (str): The dataset class name.
         out_dir (str): Output directory of the groundtruth database info.
-        max_sweeps (int): Number of input consecutive frames. Default: 10
+        max_sweeps (int, optional): Number of input consecutive frames.
+            Default: 10
     """
     nuscenes_converter.create_nuscenes_infos(
         root_path, info_prefix, version=version, max_sweeps=max_sweeps)
@@ -153,8 +154,9 @@ def waymo_data_prep(root_path,
         info_prefix (str): The prefix of info filenames.
         out_dir (str): Output directory of the generated info file.
         workers (int): Number of threads to be used.
-        max_sweeps (int): Number of input consecutive frames. Default: 5 \
-            Here we store pose information of these frames for later use.
+        max_sweeps (int, optional): Number of input consecutive frames.
+            Default: 5. Here we store pose information of these frames
+            for later use.
     """
     from tools.data_converter import waymo_converter as waymo
 
@@ -170,7 +172,7 @@ def waymo_data_prep(root_path,
             save_dir,
             prefix=str(i),
             workers=workers,
-            test_mode=(split == 'test'))
+            test_mode=(split == 'testing'))
         converter.convert()
     # Generate waymo infos
     out_dir = osp.join(out_dir, 'kitti_format')
@@ -227,7 +229,7 @@ parser.add_argument(
     '--out-dir',
     type=str,
     default='./data/kitti',
-    required='False',
+    required=False,
     help='name of info pkl')
 parser.add_argument('--extra-tag', type=str, default='kitti')
 parser.add_argument(

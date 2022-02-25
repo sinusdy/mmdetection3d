@@ -1,7 +1,11 @@
+# Copyright (c) OpenMMLab. All rights reserved.
+
+from typing import Tuple
+
 import torch
+from mmcv.runner import force_fp32
 from torch import nn as nn
 from torch.autograd import Function
-from typing import Tuple
 
 from ..ball_query import ball_query
 from ..knn import knn
@@ -14,22 +18,22 @@ class QueryAndGroup(nn.Module):
     Groups with a ball query of radius
 
     Args:
-        max_radius (float | None): The maximum radius of the balls.
+        max_radius (float): The maximum radius of the balls.
             If None is given, we will use kNN sampling instead of ball query.
         sample_num (int): Maximum number of features to gather in the ball.
-        min_radius (float): The minimum radius of the balls.
-        use_xyz (bool): Whether to use xyz.
+        min_radius (float, optional): The minimum radius of the balls.
+            Default: 0.
+        use_xyz (bool, optional): Whether to use xyz.
             Default: True.
-        return_grouped_xyz (bool): Whether to return grouped xyz.
+        return_grouped_xyz (bool, optional): Whether to return grouped xyz.
             Default: False.
-        normalize_xyz (bool): Whether to normalize xyz.
+        normalize_xyz (bool, optional): Whether to normalize xyz.
             Default: False.
-        uniform_sample (bool): Whether to sample uniformly.
+        uniform_sample (bool, optional): Whether to sample uniformly.
             Default: False
-        return_unique_cnt (bool): Whether to return the count of
-            unique samples.
-            Default: False.
-        return_grouped_idx (bool): Whether to return grouped idx.
+        return_unique_cnt (bool, optional): Whether to return the count of
+            unique samples. Default: False.
+        return_grouped_idx (bool, optional): Whether to return grouped idx.
             Default: False.
     """
 
@@ -60,7 +64,9 @@ class QueryAndGroup(nn.Module):
         if self.max_radius is None:
             assert not self.normalize_xyz, \
                 'can not normalize grouped xyz when max_radius is None'
+        self.fp16_enabled = False
 
+    @force_fp32()
     def forward(self, points_xyz, center_xyz, features=None):
         """forward.
 
@@ -141,7 +147,9 @@ class GroupAll(nn.Module):
     def __init__(self, use_xyz: bool = True):
         super().__init__()
         self.use_xyz = use_xyz
+        self.fp16_enabled = False
 
+    @force_fp32()
     def forward(self,
                 xyz: torch.Tensor,
                 new_xyz: torch.Tensor,
@@ -183,7 +191,7 @@ class GroupingOperation(Function):
 
         Args:
             features (Tensor): (B, C, N) tensor of features to group.
-            indices (Tensor): (B, npoint, nsample) the indicies of
+            indices (Tensor): (B, npoint, nsample) the indices of
                 features to group with.
 
         Returns:

@@ -1,11 +1,12 @@
-from setuptools import find_packages, setup
-
 import os
+import platform
 import shutil
 import sys
-import torch
 import warnings
 from os import path as osp
+from setuptools import find_packages, setup
+
+import torch
 from torch.utils.cpp_extension import (BuildExtension, CppExtension,
                                        CUDAExtension)
 
@@ -150,7 +151,11 @@ def add_mim_extention():
     # parse installment mode
     if 'develop' in sys.argv:
         # installed by `pip install -e .`
-        mode = 'symlink'
+        if platform.system() == 'Windows':
+            # set `copy` mode here since symlink fails on Windows.
+            mode = 'copy'
+        else:
+            mode = 'symlink'
     elif 'sdist' in sys.argv or 'bdist_wheel' in sys.argv:
         # installed by `pip install .`
         # or create source distribution by `python setup.py sdist`
@@ -212,8 +217,6 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.7',
         ],
         license='Apache License 2.0',
-        setup_requires=parse_requirements('requirements/build.txt'),
-        tests_require=parse_requirements('requirements/tests.txt'),
         install_requires=parse_requirements('requirements/runtime.txt'),
         extras_require={
             'all': parse_requirements('requirements.txt'),
@@ -270,6 +273,11 @@ if __name__ == '__main__':
                     'src/roiaware_pool3d_kernel.cu',
                     'src/points_in_boxes_cuda.cu',
                 ]),
+            make_cuda_ext(
+                name='roipoint_pool3d_ext',
+                module='mmdet3d.ops.roipoint_pool3d',
+                sources=['src/roipoint_pool3d.cpp'],
+                sources_cuda=['src/roipoint_pool3d_kernel.cu']),
             make_cuda_ext(
                 name='ball_query_ext',
                 module='mmdet3d.ops.ball_query',
