@@ -1,2 +1,13 @@
 /data/
 /checkpoints/
+/demo/3dssd/
+/demo/ascii_1519/
+/demo/ascii_1519_nan_removed/
+/demo/ascii_1519npy/
+/demo/data/
+/demo/drone1/
+/demo/pointpillars/
+/demo/scene1/
+/demo/scene1-2/
+/demo/scene2/
+/demo/second/
